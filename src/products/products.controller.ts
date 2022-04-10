@@ -8,18 +8,23 @@ export class ProductsController {
     constructor(private readonly ProductsService: ProductsService) {}
 
     @Post() 
-    addProduct(
+    async addProduct(
         @Body('title') prodTitle:string,
         @Body('description') prodDescription:string,
         @Body('price') prodPrice:number
     ) {
-        const generatedId = this.ProductsService.insertProduct(prodTitle, prodDescription, prodPrice);
+        const generatedId = await this.ProductsService.insertProduct(
+            prodTitle, 
+            prodDescription, 
+            prodPrice
+        );
         return {id: generatedId};
     }
 
     @Get()
-    getAllProducts () {
-        return {products : this.ProductsService.getProducts()}
+    async getAllProducts () {
+        const products= await this.ProductsService.getProducts();
+        return {data : products};
     }
 
     @Get(":id")

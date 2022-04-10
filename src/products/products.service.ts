@@ -1,4 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose"; // This simply tells nest js that you wanna inject a mongoose model
+
+import { Model } from 'mongoose';
 import { NotFoundError } from "rxjs";
 
 import { Product } from "./products.model";
@@ -7,24 +10,28 @@ import { Product } from "./products.model";
 export class ProductsService {
     private products:Product[] = [];
 
-    insertProduct(title:string, description:string, price:number) {
-        const prodId= Math.random().toString();
+    constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {}
 
+    async insertProduct(title:string, description:string, price:number) {
+        
         // Create new product from model
-        const newProduct = new Product(
-            prodId,
+        const newProduct = new this.productModel({
             title,
             description,
             price
-        )
-        this.products.push(newProduct);
-
-        // Return response
-        return prodId;
+        })
+        const result = await newProduct.save();
+        return result.id as string;
     }
 
-    getProducts () {
-        return [...this.products];
+    async getProducts () {
+        const products= await this.productModel.find().exec();
+        return products.map((prod) => ({
+            id:prod.id, 
+            title:prod.title,
+            description:prod.description,
+            price:prod.price
+        }));
     }
 
     async getSingleProduct(productId:string) {
