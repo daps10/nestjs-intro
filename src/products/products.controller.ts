@@ -45,8 +45,8 @@ export class ProductsController {
     }
 
     @Delete(":id")
-    removeProduct(@Param("id") prodId: string) {
-        this.ProductsService.removeProduct(prodId);
+    async removeProduct(@Param("id") prodId: string) {
+        await this.ProductsService.removeProduct(prodId);
         return null;
     }
 }
